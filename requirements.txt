@@ -1,0 +1,14 @@
+transformers
+torch==2.2.2
+scikit-learn
+pandas
+numpy==1.23.5
+matplotlib
+seaborn
+nltk
+fastapi
+uvicorn
+streamlit
+datasets==2.14.5
+uvicorn==0.21.1
+accelerate==0.26.0
