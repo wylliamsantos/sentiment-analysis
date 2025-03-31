@@ -1,4 +1,4 @@
-transformers
+transformers==4.50.0
 torch==2.2.2
 scikit-learn
 pandas

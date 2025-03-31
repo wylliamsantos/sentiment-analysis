@@ -107,6 +107,6 @@ model.save_pretrained("models/sentiment_model")
 tokenizer.save_pretrained("models/sentiment_model")
 
 # 🔥 Opcional: Salvar modelo como `trained_model.pt`
-torch.save(model.state_dict(), "models_old/trained_model.pt")
+torch.save(model.state_dict(), "models/trained_model.pt")
 
 print("✅ Modelo treinado e salvo com sucesso!")

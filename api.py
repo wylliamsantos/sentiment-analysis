@@ -5,7 +5,7 @@ import numpy as np
 
 app = FastAPI()
 
-USE_TRAINED_MODEL = True
+USE_TRAINED_MODEL = False
 
 HF_MODEL_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
 LOCAL_MODEL_PATH = "models/sentiment_model"
@@ -27,8 +27,8 @@ def predict(text: str):
     try:
         result = classifier(text)[0]
         print(result)
-        if USE_TRAINED_MODEL:
-            sentiment = result["label"]
+
+        sentiment = result["label"]
 
         # **Validar o score para evitar NaN ou infinito**
         score = result.get("score", 0.0)  # Caso não exista "score", define como 0.0
