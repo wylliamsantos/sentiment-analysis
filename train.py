@@ -11,6 +11,7 @@ df = df.dropna(subset=["clean_text", "sentiment"])
 
 # 📌 2️⃣.1️⃣ Remover tweets irrelevantes, se não quiser treiná-los
 df = df[df["sentiment"] != "Irrelevant"]
+df = df[df["sentiment"].isin(["Positive", "Negative", "Neutral"])]  # Apenas as 3 classes
 
 # 📌 3️⃣ Mapear sentimentos para números
 sentiment_mapping = {
@@ -63,16 +64,31 @@ test_dataset = Dataset.from_dict({
 })
 
 # 📌 1️⃣1️⃣ Carregar Modelo pré-treinado
-model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=4)  # 4 classes (Negativo, Neutro, Positivo, Irrelevante)
+# Mapeamento correto das labels
+id2label = {v: k for k, v in sentiment_mapping.items()}  # {0: "Negative", 1: "Neutral", 2: "Positive"}
+label2id = sentiment_mapping  # {"Negative": 0, "Neutral": 1, "Positive": 2}
+
+# Criar o modelo definindo os mapeamentos
+model = AutoModelForSequenceClassification.from_pretrained(
+    model_name,
+    num_labels=len(sentiment_mapping),
+    id2label=id2label,
+    label2id=label2id
+)
 
 # 📌 1️⃣2️⃣ Definir hiperparâmetros de treinamento
 training_args = TrainingArguments(
     output_dir="./results",
     evaluation_strategy="epoch",
-    per_device_train_batch_size=16,
-    per_device_eval_batch_size=16,
+    per_device_train_batch_size=8,  # Reduzir se precisar
+    per_device_eval_batch_size=8,
+    learning_rate=2e-5,  # Diminua se necessário (ex.: 3e-5 ou 2e-5)
     num_train_epochs=3,
-    save_steps=500
+    weight_decay=0.01,
+    logging_dir="./logs",
+    logging_steps=50,
+    gradient_accumulation_steps=2,  # Ajuda se os batches forem pequenos
+    max_grad_norm=1.0,  # Gradiente clipping
 )
 
 # 📌 1️⃣3️⃣ Criar o Trainer
@@ -91,6 +107,6 @@ model.save_pretrained("models/sentiment_model")
 tokenizer.save_pretrained("models/sentiment_model")
 
 # 🔥 Opcional: Salvar modelo como `trained_model.pt`
-torch.save(model.state_dict(), "models/trained_model.pt")
+torch.save(model.state_dict(), "models_old/trained_model.pt")
 
 print("✅ Modelo treinado e salvo com sucesso!")

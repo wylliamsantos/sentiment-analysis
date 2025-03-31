@@ -21,7 +21,7 @@ pip-delete-this-directory.txt
 Thumbs.db
 
 results/
-models/
+models_old/
 data/tweets_cleaned.csv
 *.log
 logs/

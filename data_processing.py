@@ -19,6 +19,8 @@ df = pd.read_csv("data/twitter_training.csv", names=column_names, header=None, s
 
 df["text"] = df["text"].astype(str)  # Converte para string
 df["text"] = df["text"].fillna("")  # Substitui valores NaN por string vazia
+df = df.dropna(subset=["text"])  # Remove linhas onde a coluna "text" está vazia
+df = df[df["text"].str.strip() != ""]  # Remove textos vazios ou espaços em branco
 
 df["clean_text"] = df["text"].apply(clean_text)
 

@@ -1,15 +1,14 @@
 from fastapi import FastAPI
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
 import torch
+import numpy as np
 
 app = FastAPI()
 
-USE_TRAINED_MODEL = False
+USE_TRAINED_MODEL = True
 
 HF_MODEL_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
-
 LOCAL_MODEL_PATH = "models/sentiment_model"
-label_mapping = {0: "Negative", 1: "Neutral", 2: "Positive"}  # Mapeamento das labels do modelo treinado
 
 if USE_TRAINED_MODEL:
     print(f"🔹 Usando o modelo treinado localmente: {LOCAL_MODEL_PATH}")
@@ -25,20 +24,22 @@ else:
 
 @app.get("/predict/")
 def predict(text: str):
-    result = classifier(text)[0]
-
-    if USE_TRAINED_MODEL:
-        if "LABEL" in result["label"]:
-            label_id = int(result["label"].split("_")[-1])
-            sentiment = label_mapping.get(label_id, "Unknown")
-        else:
+    try:
+        result = classifier(text)[0]
+        print(result)
+        if USE_TRAINED_MODEL:
             sentiment = result["label"]
 
-    else:
-        sentiment = result["label"].capitalize()
+        # **Validar o score para evitar NaN ou infinito**
+        score = result.get("score", 0.0)  # Caso não exista "score", define como 0.0
+        if not np.isfinite(score):  # Se for NaN ou infinito, definir como 0.0
+            score = 0.0
 
-    return {
-        "text": text,
-        "sentiment": sentiment,
-        "score": result["score"]
-    }
+        return {
+            "text": text,
+            "sentiment": sentiment,
+            "score": score
+        }
+
+    except Exception as e:
+        return {"error": f"Erro ao processar a previsão: {str(e)}"}
