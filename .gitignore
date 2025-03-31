@@ -22,6 +22,7 @@ Thumbs.db
 
 results/
 models_old/
+models/
 data/tweets_cleaned.csv
 *.log
 logs/
